@@ -1,0 +1,71 @@
+version: '3.9'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: ./deploy/Dockerfile
+    image: car_rental_service:${CAR_RENTAL_SERVICE_VERSION:-latest}
+    restart: always
+    env_file:
+    - .env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      CAR_RENTAL_SERVICE_HOST: 0.0.0.0
+      CAR_RENTAL_SERVICE_DB_HOST: car_rental_service-db
+      CAR_RENTAL_SERVICE_DB_PORT: 5432
+      CAR_RENTAL_SERVICE_DB_USER: car_rental_service
+      CAR_RENTAL_SERVICE_DB_PASS: car_rental_service
+      CAR_RENTAL_SERVICE_DB_BASE: car_rental_service
+
+  db:
+    image: postgres:13.6-bullseye
+    hostname: car_rental_service-db
+    environment:
+      POSTGRES_PASSWORD: "car_rental_service"
+      POSTGRES_USER: "car_rental_service"
+      POSTGRES_DB: "car_rental_service"
+    volumes:
+    - car_rental_service-db-data:/var/lib/postgresql/data
+    restart: always
+    healthcheck:
+      test: pg_isready -U car_rental_service
+      interval: 2s
+      timeout: 3s
+      retries: 40
+
+  migrator:
+    image: car_rental_service:${CAR_RENTAL_SERVICE_VERSION:-latest}
+    restart: "no"
+    command: alembic upgrade head
+    environment:
+      CAR_RENTAL_SERVICE_DB_HOST: car_rental_service-db
+      CAR_RENTAL_SERVICE_DB_PORT: 5432
+      CAR_RENTAL_SERVICE_DB_USER: car_rental_service
+      CAR_RENTAL_SERVICE_DB_PASS: car_rental_service
+      CAR_RENTAL_SERVICE_DB_BASE: car_rental_service
+    depends_on:
+      db:
+        condition: service_healthy
+
+  redis:
+    image: bitnami/redis:6.2.5
+    hostname: "car_rental_service-redis"
+    restart: always
+    environment:
+      ALLOW_EMPTY_PASSWORD: "yes"
+    healthcheck:
+      test: redis-cli ping
+      interval: 1s
+      timeout: 3s
+      retries: 50
+
+
+
+volumes:
+  car_rental_service-db-data:
+    name: car_rental_service-db-data
