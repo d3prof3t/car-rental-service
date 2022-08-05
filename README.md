@@ -1,6 +1,12 @@
-# car_rental_service
+# Car Rental Service
 
-This project was generated using fastapi_template.
+## Problem Statement
+
+Please refer to [this](https://docs.google.com/document/d/1rb68GncPMs3EXdgbKIoVlsIMS8ibNWjjtpprsBy7d60/edit) document for the same.
+
+
+## Framework of choice
+This project uses FastAPI as the framework.
 
 ## Poetry
 
@@ -43,7 +49,9 @@ But you have to rebuild image every time you modify `poetry.lock` or `pyproject.
 docker-compose -f deploy/docker-compose.yml --project-directory . build
 ```
 
-## Project structure
+Once the project is up you can access the interactive Swagger doc at `http://0.0.0.0:8000/api/docs`
+
+## Project structure (Top Level View)
 
 ```bash
 $ tree "car_rental_service"
@@ -162,4 +170,15 @@ docker run -p "5432:5432" -e "POSTGRES_PASSWORD=car_rental_service" -e "POSTGRES
 2. Run the pytest.
 ```bash
 pytest -vv .
+```
+
+## Test with coverage
+
+```bash
+coverage run -m pytest -svv .
+```
+
+### Generate the coverage report
+```bash
+coverage report -m
 ```

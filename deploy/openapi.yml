@@ -1,0 +1,311 @@
+openapi: 3.0.2
+info:
+  title: car_rental_service
+  description: Car Rental Service
+  version: 0.1.0
+paths:
+  /api/health:
+    get:
+      summary: Health Check
+      description: |-
+        Checks the health of a project.
+
+        It returns 200 if the project is healthy.
+      operationId: health_check_api_health_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /api/reservations/:
+    get:
+      tags:
+      - reservation
+      summary: Get Reservations
+      description: |-
+        Retrieve all dummy objects from the database.
+
+        :param limit: limit of dummy objects, defaults to 10.
+        :param offset: offset of dummy objects, defaults to 0.
+        :param dummy_dao: DAO for dummy models.
+        :return: list of dummy obbjects from database.
+      operationId: get_reservations_api_reservations__get
+      parameters:
+      - required: false
+        schema:
+          title: Limit
+          type: integer
+          default: 10
+        name: limit
+        in: query
+      - required: false
+        schema:
+          title: Offset
+          type: integer
+          default: 0
+        name: offset
+        in: query
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                title: Response Get Reservations Api Reservations  Get
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReservationOutputDTO'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+        '500':
+          description: Something went wrong.
+          content:
+            application/json:
+              message: Something went wrong.
+    post:
+      tags:
+      - reservation
+      summary: Create Reservation
+      description: |-
+        Create new reservation.
+
+        Args:
+            new_reservation_object (ReservationInputDTO): _description_
+            reservation_dao (ReservationDAO): _description_
+
+        Returns:
+            : _description_
+      operationId: create_reservation_api_reservations__post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReservationInputDTO'
+        required: true
+      responses:
+        '204':
+          description: Successful Response
+        '406':
+          description: Car is locked for reservation.
+          content:
+            application/json:
+              message: Car is locked for reservation.
+        '409':
+          description: Reservation already exists.
+          content:
+            application/json:
+              message: Reservation already exists.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+        '500':
+          description: Something went wrong.
+          content:
+            application/json:
+              message: Something went wrong.
+  /api/search/:
+    get:
+      tags:
+      - search
+      summary: Search
+      operationId: search_api_search__get
+      parameters:
+      - required: true
+        schema:
+          title: Start Date
+          type: string
+        name: start_date
+        in: query
+      - required: true
+        schema:
+          title: End Date
+          type: string
+        name: end_date
+        in: query
+      - required: false
+        schema:
+          title: Car Id
+          type: integer
+        name: car_id
+        in: query
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                title: Response Search Api Search  Get
+                type: array
+                items:
+                  $ref: '#/components/schemas/SearchOutputDTO'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    HTTPValidationError:
+      title: HTTPValidationError
+      type: object
+      properties:
+        detail:
+          title: Detail
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationError'
+    ReservationInputDTO:
+      title: ReservationInputDTO
+      required:
+      - car_id
+      - user_id
+      - start_date
+      - end_date
+      type: object
+      properties:
+        car_id:
+          title: Car Id
+          type: integer
+        user_id:
+          title: User Id
+          type: integer
+        start_date:
+          title: Start Date
+          type: string
+          format: date
+        end_date:
+          title: End Date
+          type: string
+          format: date
+      description: DTO for creating new reservation.
+    ReservationOutputDTO:
+      title: ReservationOutputDTO
+      required:
+      - id
+      - uuid
+      - created_at
+      - updated_at
+      - car_id
+      - user_id
+      - start_date
+      - end_date
+      - status
+      type: object
+      properties:
+        id:
+          title: Id
+          type: integer
+        uuid:
+          title: Uuid
+          type: string
+          format: uuid
+        created_at:
+          title: Created At
+          type: string
+          format: date-time
+        updated_at:
+          title: Updated At
+          type: string
+          format: date-time
+        car_id:
+          title: Car Id
+          type: integer
+        user_id:
+          title: User Id
+          type: integer
+        start_date:
+          title: Start Date
+          type: string
+          format: date
+        end_date:
+          title: End Date
+          type: string
+          format: date
+        status:
+          $ref: '#/components/schemas/ReservationStatus'
+      description: |-
+        DTO for reservation.
+
+        It returned when accessing reservation(s)
+    ReservationStatus:
+      title: ReservationStatus
+      enum:
+      - SUCCESS
+      - CANCELLED
+      - PROCESSING
+      type: string
+      description: An enumeration.
+    SearchOutputDTO:
+      title: SearchOutputDTO
+      required:
+      - id
+      - uuid
+      - created_at
+      - updated_at
+      - name
+      - brand
+      - registered_number
+      - category_id
+      type: object
+      properties:
+        id:
+          title: Id
+          type: integer
+        uuid:
+          title: Uuid
+          type: string
+          format: uuid
+        created_at:
+          title: Created At
+          type: string
+          format: date-time
+        updated_at:
+          title: Updated At
+          type: string
+          format: date-time
+        name:
+          title: Name
+          type: string
+        brand:
+          title: Brand
+          type: string
+        registered_number:
+          title: Registered Number
+          type: string
+        category_id:
+          title: Category Id
+          type: integer
+      description: |-
+        DTO for reservation.
+
+        It returned when accessing reservation(s)
+    ValidationError:
+      title: ValidationError
+      required:
+      - loc
+      - msg
+      - type
+      type: object
+      properties:
+        loc:
+          title: Location
+          type: array
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string

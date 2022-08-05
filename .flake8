@@ -68,6 +68,14 @@ ignore =
   DJ11,
   ; Found mutable module constant.
   WPS407,
+  ; Missing returns in docstring
+  DAR201,
+  ; Found special number
+  WPS432,
+  ; Missing parameters in docstring
+  DAR101,
+  ; Found commented out code
+  E800
 
 per-file-ignores =
   ; all tests

@@ -25,6 +25,8 @@ services:
   db:
     image: postgres:13.6-bullseye
     hostname: car_rental_service-db
+    ports:
+    - "5432:5432"
     environment:
       POSTGRES_PASSWORD: "car_rental_service"
       POSTGRES_USER: "car_rental_service"
@@ -56,6 +58,8 @@ services:
     image: bitnami/redis:6.2.5
     hostname: "car_rental_service-redis"
     restart: always
+    ports:
+    - "6379:6379"
     environment:
       ALLOW_EMPTY_PASSWORD: "yes"
     healthcheck:
@@ -63,8 +67,6 @@ services:
       interval: 1s
       timeout: 3s
       retries: 50
-
-
 
 volumes:
   car_rental_service-db-data:
